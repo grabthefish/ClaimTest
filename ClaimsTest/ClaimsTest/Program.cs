@@ -1,4 +1,5 @@
 using ClaimsTest.Components;
+using Microsoft.AspNetCore.Authentication.Cookies;
 
 namespace ClaimsTest
 {
@@ -8,9 +9,19 @@ namespace ClaimsTest
         {
             var builder = WebApplication.CreateBuilder(args);
 
+            builder.Services.AddHttpContextAccessor();
+
             // Add services to the container.
             builder.Services.AddRazorComponents()
                 .AddInteractiveServerComponents();
+
+            builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+                            .AddCookie(options =>
+                            {
+                                options.ExpireTimeSpan = TimeSpan.FromDays(1.5);
+                                options.SlidingExpiration = true;
+                                options.LoginPath = "/login";
+                            });
 
             var app = builder.Build();
 
@@ -26,6 +37,9 @@ namespace ClaimsTest
 
             app.UseStaticFiles();
             app.UseAntiforgery();
+
+            app.UseAuthentication();
+            app.UseAuthorization();
 
             app.MapRazorComponents<App>()
                 .AddInteractiveServerRenderMode();

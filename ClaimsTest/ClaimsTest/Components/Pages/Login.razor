@@ -1,0 +1,31 @@
+﻿@page "/login"
+
+@using System.Security.Claims
+@using Microsoft.AspNetCore.Authentication
+@using Microsoft.AspNetCore.Authentication.Cookies
+
+@inject IHttpContextAccessor _httpContextAccessor;
+@inject NavigationManager _navigation;
+
+<h3>Login</h3>
+
+<EditForm OnSubmit="SignIn" Model="this" FormName="SignInForm">
+    <button>Sign in</button>
+</EditForm>
+
+@code {
+
+    private async Task SignIn()
+    {
+        // this will cause a blank screen until the ".AspNetCore.Cookies" cookie is deleted from the browser
+        var identity = new ClaimsIdentity(null, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        // adding ANY claim will fix it
+        // var claims = new[] { new Claim("foo", "bar") };
+        // var identity = new ClaimsIdentity(claims, CookieAuthenticationDefaults.AuthenticationScheme);
+
+        await _httpContextAccessor.HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme, new ClaimsPrincipal(identity));
+
+        _navigation.NavigateTo("/");
+    }
+}
